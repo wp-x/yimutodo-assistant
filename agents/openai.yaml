@@ -1,0 +1,4 @@
+interface:
+  display_name: "一木清单助理"
+  short_description: "通过非官方 API 查询、创建、完成和管理一木清单任务"
+  default_prompt: "使用 $yimutodo-assistant 查看我的一木清单任务并按要求管理。"
