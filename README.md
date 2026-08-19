@@ -4,28 +4,13 @@
 
 > 本项目来自网页端接口逆向，与一木清单官方无关。接口升级后可能失效。
 
-## 给 Agent：读取后执行安装
+## 一句话安装
 
-如果用户要求安装这个项目，请完成下面的操作，不要只把命令发给用户：
+复制下面整段，发给 Codex、Claude Code、Kimi、zcode 或其他能执行命令的 Agent：
 
-1. 确认当前 Agent 的全局 Skill 目录。优先读取运行环境或配置提供的路径，不要猜测。
-   - Codex：`~/.codex/skills`
-   - Claude Code：`~/.claude/skills`
-   - 通用 Agent 兼容目录：`~/.agents/skills`
-   - Kimi、zcode 或其他 Agent：读取自身配置；没有原生 Skill 机制时，把仓库放进用户指定目录并直接调用 CLI。
-2. 将仓库克隆到 `<技能目录>/yimutodo-assistant`。目标已存在时先检查用户改动，不要直接覆盖。
-3. 运行 `python3 -m pip install -r requirements.txt`。
-4. 将 `.env.example` 复制为 `.env`，执行 `chmod 600 .env`。
-5. 告诉用户 `.env` 的完整路径，引导用户在本地填入 Cookie。不要要求用户把 Cookie 发到聊天、日志或 Issue。
-6. 用户配置完成后运行 `python3 scripts/yimutodo_cli.py status`。成功后提醒用户重启或重新加载 Agent。
-
-`.env` 内容：
-
-```dotenv
-YIMUTODO_COOKIE='vertx-web.session=替换为用户自己的值'
+```text
+请帮我安装并配置一木清单 AI 助理 https://github.com/wp-x/yimutodo-assistant：先识别当前 Agent 的全局 Skill 或插件目录，把仓库安装为 yimutodo-assistant；如果当前 Agent 没有原生 Skill 机制，就安装到合适的工作目录并使用项目 CLI；安装 requirements.txt，复制 .env.example 为 .env 并将权限设为 600；然后告诉我 .env 的完整路径，指导我从本机一木清单网页的浏览器开发者工具中取得 vertx-web.session 并由我在本地填写，禁止要求我把 Cookie 发到聊天、日志或 Issue；我确认填写完成后，运行 status 做只读连接测试，成功后告诉我如何重载当前 Agent；不要覆盖目标目录中已有的未提交修改。
 ```
-
-安装完成后，用自然语言完成一次只读查询。涉及删除项目、清空回收站、永久删除、修改密码等操作时，必须先获得用户明确授权。
 
 ## 给用户：它能做什么
 
@@ -58,6 +43,10 @@ chmod 600 .env
 ```
 
 登录 [一木清单网页版](https://www.yimutodo.com)，按 `F12` 打开开发者工具，在 Application（应用）→ Cookies 中找到 `vertx-web.session`，填入 `.env`。
+
+```dotenv
+YIMUTODO_COOKIE='vertx-web.session=替换为你自己的值'
+```
 
 Cookie 等同于登录状态。项目已通过 `.gitignore` 排除 `.env`，仍需避免把它粘贴到聊天、Issue、截图或公开仓库。
 
