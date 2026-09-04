@@ -1,0 +1,6 @@
+references/api-reference.md
+.env
+scripts/__pycache__/
+.DS_Store
+*.pyc
+.venv/

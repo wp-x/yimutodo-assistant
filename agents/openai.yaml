@@ -1,0 +1,4 @@
+interface:
+  display_name: "一木清单助理"
+  short_description: "一木清单智能管家：随口一说自动拆解任务、推断项目时间优先级并批量入库，也能查询、完成、修改任务"
+  default_prompt: "使用 $yimutodo-assistant 把我接下来要做的事情智能拆解并记入一木清单。"
