@@ -1,6 +1,10 @@
 references/api-reference.md
+references/review-2026-09-11.md
 .env
+.env.*
+!.env.example
 scripts/__pycache__/
+tests/__pycache__/
 .DS_Store
 *.pyc
 .venv/

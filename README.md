@@ -1,6 +1,6 @@
-# 一木清单 AI 助理
+# 一木清单智能整理助手
 
-让 AI Agent 通过非官方 API 查询和管理一木清单。支持自然语言触发，也可以单独使用命令行工具。
+把零碎口述先整理成通顺、可执行的书面任务，按实际行动拆分，再通过非官方 API 保存到一木清单。AI Agent 负责理解和改写，命令行工具负责保存及回读验证。
 
 ![](assets/Pasted-20260819-233712.png)
 
@@ -17,20 +17,30 @@
 
 ## 能做什么
 
-- 贾维斯模式：把一大段口述（含语音转文字）自动清洗、拆解成结构化任务，推断项目、时间、优先级并智能备注后批量入库
+- 默认整理口述标题、合并重复、自我纠正、区分条件和背景
+- 按独立完成结果拆分任务，把连续步骤和执行要求整理进备注
+- 修改已有标题时核验提醒正文，并保留原提醒时间和渠道
 - 查询、创建、修改和完成任务
 - 管理项目、标签、任务组、提醒、习惯和打卡
 - 识别“明天下午三点”这类中文时间
 - 查询回收站和专注记录
-- 通过“记一下”“提醒我”“别忘了”等自然语言触发，无需说出“一木清单”
+- 通过“一木清单”“帮我记个待办”等自然语言触发
 
 例如：
 
 ```text
-帮我把这段记下来：明天下午记得交周报，对了还要买牛奶。
-查看还没完成的任务。
+帮我在一木清单添加一个明天下午三点取快递的任务。
+那个报价王总上次觉得贵，明天下午三点提醒我改一下价格再发给他。
+把报价那条任务的标题写通顺，提醒文案也同步整理。
+查看一木清单里还没完成的任务。
 把“取快递”标记为完成。
 ```
+
+说出“一木清单”可以减少 Agent 把请求误判成系统日历或浏览器操作。
+
+第二句会整理成“修订报价单并发送给王总”，将“原报价偏高”放入备注，并设置准时提醒。不会把整段语音转写直接当标题，也不会机械拆成多次提醒。
+
+智能整理是默认工作流，不需要另开开关。直接调用 CLI 时，仍需传入已经整理好的标题；CLI 本身不运行语言模型。
 
 ## 手动安装
 
@@ -63,17 +73,32 @@ Cookie 等同于登录状态。项目已通过 `.gitignore` 排除 `.env`，仍�
 python3 scripts/yimutodo_cli.py status
 python3 scripts/yimutodo_cli.py projects
 python3 scripts/yimutodo_cli.py tasks --status open
-python3 scripts/yimutodo_cli.py add-task "取快递" --content "备注"
+python3 scripts/yimutodo_cli.py add-task "取快递"
+python3 scripts/yimutodo_cli.py add-batch --file /tmp/yimu-plan.json --dry-run
+python3 scripts/yimutodo_cli.py add-batch --file /tmp/yimu-plan.json
+python3 scripts/yimutodo_cli.py rewrite-task TASK_ID "修订报价单并发送给王总"
 python3 scripts/yimutodo_cli.py complete TASK_ID
-echo '[{"title":"提交周报","project":"工作","time":"明天下午三点"}]' | python3 scripts/yimutodo_cli.py add-batch
 ```
 
-日常用法已由以上命令覆盖；`call` 子命令可分发任意 method 以满足进阶需求。完整的逆向接口文档不包含在公开仓库中，仅随本地安装保留。
+计划字段、提醒设置和失败处理见 [CLI 约定](references/cli-contract.md)，文案标准见 [整理规则与案例](references/organizing-guide.md)。完整逆向接口文档不包含在公开仓库中，仅随本地安装保留。
+
+## 更新与验证
+
+更新实际被 Agent 加载的技能目录，确保 `SKILL.md`、`agents/`、`references/` 和整个 `scripts/` 来自同一版本。只更新下载源码或只复制主脚本不会更新另一个已安装副本。保留已有 `.env`，重载技能或开启新会话后生效。
+
+```bash
+python3 scripts/run_tests.py
+python3 scripts/yimutodo_cli.py validate-plan --file /tmp/yimu-plan.json
+```
+
+测试在隔离环境中运行，设有 60 秒超时；`validate-plan` 不联网。`--dry-run` 会读取真实项目并解析时间，但不会创建任务。
 
 ## 使用限制
 
 - Cookie 过期时会返回 `errorCode=1000004`，重新登录并更新 `.env` 即可。
 - 提醒、重复和打卡需要严格的字段组合与毫秒时间戳。
+- 提醒正文使用任务标题，`taskNotices.msg` 是“提前10分钟”等时间说明，不能作为正文修改。
+- 结构测试和回读不证明设备推送已送达；已打开的客户端可能需要刷新才能清除缓存的旧文案。
 - 所有写入都会直接修改用户的真实数据。
 - 不同 Agent 的 Skill 目录和自动触发机制可能不同，CLI 可以独立运行。
 
